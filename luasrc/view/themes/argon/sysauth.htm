@@ -61,18 +61,17 @@
 	end
 
 	local boardinfo			= util.ubus("system", "board")
-	local bingUrl 			= "http://www.bing.com/"
-	local bingApiUrl 		= bingUrl .. "HPImageArchive.aspx?format=js&idx=0&n=1&mkt=en-US"
+	local remote_bg_url		= "https://wallhaven.cc/api/v1/search?apikey=5NrkDOWnls15XKiLiJNZGBVggIvvXG3G&q=id:5&categories=110&purity=111&sorting=random&atleast=1920x1080&ratios=16x9&page=1&seed=[a-zA-Z0-9]{6}"
 	local themeDir			= media .. "/background/"
 	local bgUrl 			= media .. "/img/bg1.jpg"
-	local useBing			= fs.access('/etc/config/argon') and uci:get_first('argon', 'global', 'bing_background') or "0"
+	local useBing			= fs.access('/etc/config/argon') and uci:get_first('argon', 'global', 'bing_background') or "1"
 	local backgroundTable, backgroundCount 		= fetchMedia("/www" .. themeDir .. "*",themeDir)
 	local backgroundType 	= "Image"
 
 	function getBing()
-		local bing = sys.exec("wget --timeout=0.5 -qO- '%s'" %bingApiUrl)
+		local bing = sys.exec("wget --timeout=0.5 -qO- '%s'" %remote_bg_url)
 		if (bing and bing ~= '') then
-			bgUrl 	= bingUrl .. json.parse(bing).images[1].url
+			bgUrl 	= json.parse(bing).data[1].path
 		end
 	end
 
@@ -102,7 +101,8 @@
 	<!-- Video Player End -->
 	<% else %>
 	<!-- Image Background Start -->
-	<div class="main-bg" id="main-bg" style="background-image:url(<%=bgUrl%>)"></div>
+	<!-- <div class="main-bg" id="main-bg" style="background-image:url(<%=bgUrl%>)"></div> -->
+	<img src="<%=bgUrl%>" style="width: 100%;height: 100%;object-fit:cover;" referrerPolicy="no-referrer">
 	<!-- Image Background End -->
 	<% end %>
 	<!-- Login Container Start -->
