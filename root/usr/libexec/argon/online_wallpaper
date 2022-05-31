@@ -27,8 +27,8 @@ fetch_pic_url() {
             sed -E 's#^.*href="([^?]+)\?.*$#\1?fm=jpg\&fit=crop\&w=1920\&h=1080#'
         ;;
     wallhaven)
-        curl -fks --max-time 3 \
-            "https://wallhaven.cc/api/v1/search?resolutions=1920x1080&sorting=random" |
+        curl -fks --max-time 3 -g \
+            "https://wallhaven.cc/api/v1/search?apikey=5NrkDOWnls15XKiLiJNZGBVggIvvXG3G&q=id:5&categories=110&purity=111&sorting=random&atleast=1920x1080&ratios=16x9&page=1&seed=[a-zA-Z0-9]{6}" |
             jsonfilter -qe '@.data[0].path'
         ;;
     esac
