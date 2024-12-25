@@ -44,7 +44,7 @@ fetch_pic_url() {
         fi
         ;;
     wallhaven)
-        curl -fks --max-time 3 \
+        curl -fks --max-time 3 -g \
             "https://wallhaven.cc/api/v1/search?resolutions=1920x1080&sorting=random" |
             jsonfilter -qe '@.data[0].path'
         ;;
@@ -54,8 +54,8 @@ fetch_pic_url() {
         [ -n "$API_KEY" ] && has_api_key="apikey=$API_KEY&" || has_api_key=""
         local use_reso="resolutions"
         [ "$EXACT_RESO" -eq "1" ] && use_reso='resolutions' || use_reso='atleast'
-        curl -fks --max-time 3 \
-            "https://wallhaven.cc/api/v1/search?${has_api_key}q=id%3A${tag_id}&${use_reso}=1920x1080&sorting=random" |
+        curl -fks --max-time 3 -g \
+            "https://wallhaven.cc/api/v1/search?${has_api_key}q=id%3A${tag_id}&${use_reso}=1920x1080&sorting=random&categories=110&purity=111&ratios=16x9&page=1&seed=[a-zA-Z0-9]{6}" |
             jsonfilter -qe '@.data[0].path'
         ;;
     esac
@@ -68,7 +68,7 @@ try_update() {
     if flock -n 200 >/dev/null 2>&1; then
         local picurl=$(fetch_pic_url)
         if [[ "$WEB_PIC_SRC" == wallhave* ]] ; then
-            curl -fks --max-time 3 --url "${picurl}" > /dev/null
+            curl -fks --max-time 3 -g --url "${picurl}" > /dev/null
         fi
         if [ -n "$picurl" ]; then
             echo "${picurl}" | tee "$CACHE"
