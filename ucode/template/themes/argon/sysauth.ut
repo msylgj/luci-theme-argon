@@ -21,37 +21,32 @@
 	Licensed to the public under the Apache License 2.0
 -#}
 
-{% include("themes/" + theme + "/header_login") %}
+{% include("themes/" + theme + "/out_header_login") %}
 {%
 	import * as fs from 'fs';
 	import { cursor } from 'uci';
-	import { srand } from 'math';
+	import { rand } from 'math';
 
 	let cfg = cursor();
 
 	//Fetch Local Background Media
 
-	const imageTypes = " jpg png gif webp ";
+	const imageTypes = " jpg jpeg png gif webp ";
 	const videoTypes = " mp4 webm ";
 	const allTypes = imageTypes + videoTypes;
 
 	function fetchMedia(path, themeDir) {
-		let backgroundTable = {};
-		let backgroundCount = 0;
+		let backgroundTable = [];
 		for (f in (fs.lsdir(path))) {
-			attr = fs.stat(f);
-			if (attr) {
-				let ext = lc(split(fs.basename(f),".")[1]);
-				if (ext && index(allTypes, " " + ext + " ") != null) {
-					let bg = {};
-					bg.type = ext;
-					bg.url = themeDir + fs.basename(f);
-					push(backgroundTable, bg);
-					backgroundCount = backgroundCount + 1;
-				}
+			let ext = lc(split(f, '.')?.[1]);
+			if (ext && index(allTypes, " " + ext + " ") != -1) {
+				let bg = {};
+				bg.type = ext;
+				bg.url = themeDir + f;
+				push(backgroundTable, bg);
 			}
 		}
-		return {backgroundTable, backgroundCount};
+		return backgroundTable;
 	}
 
 	function selectBackground(themeDir) {
@@ -62,20 +57,19 @@
 		if (fs.access("/etc/config/argon")) {
 			let online_wallpaper = cfg.get_first('argon', 'global', 'online_wallpaper') ?? (cfg.get_first('argon', 'global', 'bing_background') == '1' ? 'bing' : null);
 			if (online_wallpaper && online_wallpaper != "none") {
-				const exitcode = system(`/usr/libexec/argon/online_wallpaper`);
-				const picurl = fs.readfile('/var/run/argon_' + online_wallpaper + '.url');
-				if (picurl) {
-					bgUrl = picurl;
+				const picurl = ubus.call("luci.argon_wallpaper", "get_url") ?? {};
+				if (picurl?.url) {
+					bgUrl = picurl.url;
 					return {bgUrl, backgroundType, mimeType};
 				}
 			}
 		}
 
-		let background = fetchMedia("/www" + themeDir + "*", themeDir);
-		if ( background.backgroundCount > 0 ) {
-			let currentBg = background.backgroundTable[srand(background.backgroundCount)];
+		let background = fetchMedia("/www" + themeDir, themeDir);
+		if ( length(background) > 0 ) {
+			let currentBg = background[(rand() % length(background))];
 			bgUrl = currentBg.url;
-			if (index(videoTypes, " " + currentBg.type + " ") != null) {
+			if (index(videoTypes, " " + currentBg.type + " ") != -1) {
 				backgroundType = "Video";
 				mimeType = "video/" + currentBg.type;
 			}
@@ -115,7 +109,7 @@
 	{% else %}
 	<!-- Image Background Start -->
 	<!-- <div class="main-bg" id="main-bg" style="background-image:url({{ bgArry.bgUrl }})"></div> -->
-	<img src="{{ bgArry.bgUrl }}" style="width: 100%;height: 99.66%;object-fit:cover;" referrerPolicy="no-referrer">
+	<img src="{{ bgArry.bgUrl }}" class="main-bg" id="main-bg" referrerPolicy="no-referrer">
 	<!-- Image Background End -->
 	{% endif %}
 	<!-- Login Container Start -->
