@@ -56,9 +56,10 @@
 
 		if (fs.access("/etc/config/argon")) {
 			let online_wallpaper = cfg.get_first('argon', 'global', 'online_wallpaper') ?? (cfg.get_first('argon', 'global', 'bing_background') == '1' ? 'bing' : null);
+			let collection_id = cfg.get_first('argon', 'global', 'collection_id') ?? '';
 			if (online_wallpaper && online_wallpaper != "none") {
 				const exitcode = system('/usr/libexec/argon/online_wallpaper');
-				const picurl = fs.readfile('/var/run/argon_' + online_wallpaper + '.url');
+				const picurl = fs.readfile('/var/run/argon_' + online_wallpaper + ( collection_id == '' ? '' : '_' + collection_id) + '.url');
 				if (picurl) {
 					bgUrl = picurl;
 					return {bgUrl, backgroundType, mimeType};
