@@ -109,6 +109,7 @@
 	{% else %}
 	<!-- Image Background Start -->
 	<div class="main-bg" id="main-bg" style="background-image:url({{ bgArry.bgUrl }})"></div>
+        <img src="{{ bgArry.bgUrl }}" class="main-bg" id="main-bg" referrerPolicy="no-referrer">
 	<!-- Image Background End -->
 	{% endif %}
 	<!-- Login Container Start -->

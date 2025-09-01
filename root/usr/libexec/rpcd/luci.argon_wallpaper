@@ -61,7 +61,7 @@ fetch_pic_url() {
 		[ "$EXACT_RESO" -eq "1" ] || use_reso="atleast"
 		[ -z "$API_KEY" ] || API_KEY="apikey=$API_KEY&"
 		wget -T3 -qO- \
-			"https://wallhaven.cc/api/v1/search?${API_KEY}q=id%3A${tag_id}&${use_reso}=1920x1080&sorting=random" |
+			"https://wallhaven.cc/api/v1/search?${API_KEY}q=id%3A${tag_id}&${use_reso}=1920x1080&sorting=random&categories=110&purity=111&ratios=16x9&page=1&seed=[a-zA-Z0-9]{6}" |
 			jsonfilter -qe '@.data[0].path'
 		;;
 	esac
